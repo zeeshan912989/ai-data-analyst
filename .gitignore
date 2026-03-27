@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+
+# next.js
+frontend/.next/
+frontend/out/
+
+# env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+
+# misc
+.DS_Store
+*.pem
+*.log
+*.sqlite3
+*.db
+
+# OS files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
