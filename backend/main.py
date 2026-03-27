@@ -2,7 +2,7 @@ import os
 import uvicorn
 import io
 import pandas as pd
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, List, Any, Optional
 from processor import DataProcessor
@@ -10,9 +10,17 @@ from groq_client import GroqClient
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
+# --- Auth System ---
+from auth_routes import router as auth_router, get_current_user
+from database import User
+# -------------------
+
 load_dotenv()
 
 app = FastAPI(title="AI Data Analyst API")
+
+# Include Authentication Router
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 
 # Setup CORS for Frontend access
 app.add_middleware(
@@ -39,7 +47,7 @@ def home():
     return {"status": "AI Data Analyst API is running!"}
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
     """
     Upload and parse file (CSV/Excel).
     """
@@ -81,9 +89,9 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/analyze")
-async def get_insights(req: AnalysisRequest):
+async def get_insights(req: AnalysisRequest, current_user: User = Depends(get_current_user)):
     """
-    Get AI Insights based on file summary.
+    Get AI Insights based on file summary. (Protected)
     """
     if req.file_id not in data_store:
         raise HTTPException(status_code=404, detail="File session not found")
@@ -97,9 +105,9 @@ async def get_insights(req: AnalysisRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/ask")
-async def ask_question(req: QARequest):
+async def ask_question(req: QARequest, current_user: User = Depends(get_current_user)):
     """
-    Natural language Q&A.
+    Natural language Q&A. (Protected)
     """
     if req.file_id not in data_store:
         raise HTTPException(status_code=404, detail="File session not found")

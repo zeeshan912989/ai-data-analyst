@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --background: #ffffff;
@@ -9,12 +7,17 @@
   --secondary: #64748b;
 }
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
 @layer base {
-  * {
-    @apply border-slate-200;
-  }
   body {
-    @apply bg-white text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-700;
+    background-color: theme('colors.white');
+    color: theme('colors.slate.900');
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -40,4 +43,15 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% / 3)); }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+  display: flex;
+  width: max-content;
 }
