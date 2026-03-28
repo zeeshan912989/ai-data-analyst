@@ -33,12 +33,24 @@ class DataProcessor:
         """
         Generates a summary of the dataframe for the AI.
         """
+        # Clean basic stats to avoid NaN JSON errors
+        basic_stats = {}
+        if not df.empty:
+            stats_df = df.describe(include='all').T
+            # Replace NaN with None for JSON compliance
+            stats_df = stats_df.where(pd.notnull(stats_df), None)
+            basic_stats = stats_df.to_dict()
+
+        # Clean sample data
+        sample_df = df.head(10)
+        sample_df = sample_df.where(pd.notnull(sample_df), None)
+
         summary = {
             "columns": list(df.columns),
             "total_rows": len(df),
             "column_types": df.dtypes.astype(str).to_dict(),
-            "sample_data": df.head(10).to_dict(orient="records"),
-            "basic_stats": df.describe(include='all').T.to_dict() if not df.empty else {}
+            "sample_data": sample_df.to_dict(orient="records"),
+            "basic_stats": basic_stats
         }
         return summary
 

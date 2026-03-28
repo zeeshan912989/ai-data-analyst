@@ -82,7 +82,7 @@ async def upload_file(file: UploadFile = File(...), current_user: User = Depends
             "total_rows": len(df),
             "numeric_cols": numeric_cols,
             "categorical_cols": categorical_cols,
-            "sample": df.head(10).to_dict(orient="records"),
+            "sample": summary["sample_data"],
             "basic_stats": summary["basic_stats"]
         }
     except Exception as e:
