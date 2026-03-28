@@ -10,12 +10,14 @@ import { TestimonialBanner } from "@/components/testimonial-banner";
 import { BentoGridBanner } from "@/components/bento-grid-banner";
 import { HumanFirstBanner } from "@/components/human-first-banner";
 import { PillCtaBanner } from "@/components/pill-cta-banner";
+import { FeatureBanner } from "@/components/feature-banner";
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen selection:bg-blue-100 selection:text-blue-700 font-sans">
       <Navbar />
       <Hero />
+      <FeatureBanner />
       <BentoGridBanner />
       <LogoBanner />
       <HumanFirstBanner />
