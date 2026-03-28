@@ -23,6 +23,7 @@ import {
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AdvancedLoader } from "@/components/advanced-loader";
+import { supabase } from "@/lib/supabase";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,28 +35,56 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem("token");
+      // 1. Check if we have a Supabase session first (for Social Logins)
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      let token = localStorage.getItem("token");
+      
+      // If we have a Supabase session but no local token, sync them
+      if (session && !token) {
+        token = session.access_token;
+        localStorage.setItem("token", token);
+      }
+
       if (!token) {
         window.location.href = "/login";
         return;
       }
+
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/auth/dashboard`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        
         if (res.ok) {
           const data = await res.json();
           setUserData(data);
-          setBusinesses(data.businesses || [{ id: 1, name: "Default Corp" }, { id: 2, name: "Retail Pro" }]); // Mock list
-          setActiveBusiness(data.active_business || { id: 1, name: "Default Corp" });
+          setBusinesses(data.businesses || [{ id: 1, name: "Default Hub" }]);
+          setActiveBusiness(data.active_business || { id: 1, name: "Default Hub" });
+        } else if (session) {
+          // Fallback for social users if backend hasn't synced yet
+          setUserData({
+            full_name: session.user.user_metadata.full_name || session.user.email?.split('@')[0],
+            email: session.user.email,
+            current_plan: 'Free'
+          });
+          setBusinesses([{ id: 1, name: "My Workspace" }]);
+          setActiveBusiness({ id: 1, name: "My Workspace" });
         } else {
           localStorage.removeItem("token");
           window.location.href = "/login";
         }
       } catch (err) {
-        console.error("Backend offline");
+        console.error("Backend connection issue, showing local profile");
+        if (session) {
+           setUserData({
+            full_name: session.user.user_metadata.full_name || "User",
+            email: session.user.email,
+            current_plan: 'Free'
+          });
+        }
       } finally {
-        setTimeout(() => setIsLoading(false), 2000);
+        setTimeout(() => setIsLoading(false), 800);
       }
     };
     fetchUser();
