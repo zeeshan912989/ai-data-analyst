@@ -6,7 +6,7 @@ import {
   User, Shield, Bell, Database, Globe, 
   Trash2, Save, LogOut, Camera, Lock,
   Moon, Sun, MapPin, Mail, Phone,
-  CreditCard, ChevronRight, Zap, Check
+  CreditCard, ChevronRight, Zap, Check, AlertCircle
 } from "lucide-react";
 
 type TabType = "general" | "notifications" | "data" | "security";

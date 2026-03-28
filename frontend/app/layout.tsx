@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
+import { PaddleLoader } from "@/components/paddle-loader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,24 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
-
-        {/* Paddle.js — Payment Gateway Script */}
-        <Script 
-          src="https://cdn.paddle.com/paddle/v2/paddle.js"
-          strategy="lazyOnload"
-          onLoad={() => {
-            if (typeof window !== 'undefined' && (window as any).Paddle) {
-              // Use sandbox for testing, switch to live for production
-              const paddleEnv = process.env.NEXT_PUBLIC_PADDLE_ENV || 'sandbox';
-              if (paddleEnv === 'sandbox') {
-                (window as any).Paddle.Environment.set('sandbox');
-              }
-              (window as any).Paddle.Initialize({
-                token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_token_here',
-              });
-            }
-          }}
-        />
+        <PaddleLoader />
       </body>
     </html>
   );

@@ -168,7 +168,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     pathname === item.href 
                       ? "bg-white/10 text-white border border-white/10" 
                       : "text-slate-400 hover:bg-white/5 hover:text-white"
-                  } ${item.adminOnly ? "hidden lg:flex mt-6 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400" : ""}`}
+                  } `}
                 >
                   <item.icon className="w-5 h-5" />
                   {!isSidebarCollapsed && (
