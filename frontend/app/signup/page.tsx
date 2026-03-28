@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Loader2, BarChart2, CheckCircle2, Shield, Zap, Sparkles, ArrowLeft } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -233,11 +234,6 @@ export default function SignupPage() {
             <button 
               type="button"
               onClick={async () => {
-                const { createClient } = await import('@supabase/supabase-js');
-                const supabase = createClient(
-                  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                );
                 await supabase.auth.signInWithOAuth({
                   provider: 'google',
                   options: {
@@ -258,11 +254,6 @@ export default function SignupPage() {
             <button 
               type="button"
               onClick={async () => {
-                const { createClient } = await import('@supabase/supabase-js');
-                const supabase = createClient(
-                  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                );
                 await supabase.auth.signInWithOAuth({
                   provider: 'github',
                   options: {
