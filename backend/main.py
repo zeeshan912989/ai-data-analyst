@@ -25,7 +25,12 @@ app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 # Setup CORS for Frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, set this to frontend domain
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://ai-data-analyst-production.up.railway.app", # Replace with actual Railway domain
+        "*" # Fallback (optional, but keep for now if not with credentials)
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

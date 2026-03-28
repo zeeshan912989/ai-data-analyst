@@ -62,7 +62,7 @@ export default function BillingPage() {
   const fetchBilling = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/billing/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/auth/billing/status`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -79,7 +79,7 @@ export default function BillingPage() {
   const handleUpgrade = async (plan: string) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/billing/upgrade?plan=${plan}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/auth/billing/upgrade?plan=${plan}`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });

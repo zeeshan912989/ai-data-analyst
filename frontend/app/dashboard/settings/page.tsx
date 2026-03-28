@@ -28,7 +28,7 @@ export default function SettingsPage() {
 
   const fetchProfile = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/dashboard`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/auth/dashboard`, {
       headers: { "Authorization": `Bearer ${token}` }
     });
     if (res.ok) {
@@ -46,7 +46,7 @@ export default function SettingsPage() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/auth/profile`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

@@ -3,16 +3,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MoveRight, Menu, X, BarChart2 } from "lucide-react";
+import { MoveRight, Menu, X, BarChart2, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
-  // Handle scroll effect for sticky header with shadow
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -71,20 +74,32 @@ export function Navbar() {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link 
-              href="/login" 
-              className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors px-2 py-2"
-            >
-              Log in
-            </Link>
-            <Link 
-              href="/signup" 
-              className="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all duration-300 bg-slate-900 rounded-full hover:bg-slate-800 shadow-[0_4px_14px_0_rgba(15,23,42,0.39)] hover:shadow-[0_6px_20px_rgba(15,23,42,0.23)] hover:-translate-y-0.5 overflow-hidden"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Sign up <MoveRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
+            {isLoggedIn ? (
+              <Link 
+                href="/dashboard" 
+                className="group relative inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold text-white transition-all duration-300 bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg shadow-blue-500/25 hover:-translate-y-0.5"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link 
+                  href="/login" 
+                  className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors px-2 py-2"
+                >
+                  Log in
+                </Link>
+                <Link 
+                  href="/signup" 
+                  className="group relative inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all duration-300 bg-slate-900 rounded-full hover:bg-slate-800 shadow-[0_4px_14px_0_rgba(15,23,42,0.39)] hover:shadow-[0_6px_20px_rgba(15,23,42,0.23)] hover:-translate-y-0.5 overflow-hidden"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Sign up <MoveRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -120,20 +135,33 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="w-full h-px bg-slate-200 my-4" />
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-4 text-lg font-bold text-slate-900 bg-slate-100 rounded-2xl hover:bg-slate-200 transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-4 text-lg font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
-              >
-                Start for free <MoveRight className="w-5 h-5" />
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-4 text-lg font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-4 text-lg font-bold text-slate-900 bg-slate-100 rounded-2xl hover:bg-slate-200 transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-4 text-lg font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+                  >
+                    Start for free <MoveRight className="w-5 h-5" />
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}

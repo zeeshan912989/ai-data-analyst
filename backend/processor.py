@@ -1,6 +1,6 @@
 import pandas as pd
 import io
-import json
+import numpy as np
 from typing import Dict, List, Any
 
 class DataProcessor:
@@ -9,41 +9,49 @@ class DataProcessor:
         """
         Loads CSV or Excel data into a Pandas DataFrame.
         """
-        if filename.endswith(".csv"):
-            return pd.read_csv(io.BytesIO(file_content))
-        elif filename.endswith((".xlsx", ".xls")):
-            return pd.read_excel(io.BytesIO(file_content))
-        else:
-            raise ValueError("Unsupported file format. Please upload CSV or Excel.")
+        try:
+            if filename.endswith(".csv"):
+                return pd.read_csv(io.BytesIO(file_content))
+            elif filename.endswith((".xlsx", ".xls")):
+                return pd.read_excel(io.BytesIO(file_content))
+            else:
+                raise ValueError("Unsupported file format.")
+        except Exception as e:
+            raise ValueError(f"Error reading file: {str(e)}")
 
     @staticmethod
-    def sanitize_df(df: pd.DataFrame) -> pd.DataFrame:
+    def sanitize_output(data: Any) -> Any:
         """
-        Cleans the dataframe: handles NA, renames columns for consistency, etc.
+        Helper to recursively clean JSON-unfriendly float values.
         """
-        # Ensure column names are strings and stripped
-        df.columns = [str(c).strip() for c in df.columns]
-        
-        # Limit rows for the AI to analyze (to stay within token limits)
-        # AI usually needs a preview/summary, not the whole thing.
-        return df
+        if isinstance(data, float):
+            if np.isnan(data) or np.isinf(data):
+                return None
+            return data
+        elif isinstance(data, dict):
+            return {k: DataProcessor.sanitize_output(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [DataProcessor.sanitize_output(v) for v in data]
+        return data
 
     @staticmethod
     def get_summary(df: pd.DataFrame) -> Dict[str, Any]:
         """
         Generates a summary of the dataframe for the AI.
         """
-        # Clean basic stats to avoid NaN JSON errors
-        basic_stats = {}
-        if not df.empty:
-            stats_df = df.describe(include='all').T
-            # Replace NaN with None for JSON compliance
-            stats_df = stats_df.where(pd.notnull(stats_df), None)
-            basic_stats = stats_df.to_dict()
+        # Ensure it's not empty
+        if df.empty:
+            return {"columns": [], "total_rows": 0, "sample_data": [], "basic_stats": {}}
 
-        # Clean sample data
-        sample_df = df.head(10)
-        sample_df = sample_df.where(pd.notnull(sample_df), None)
+        # Replace inf with nan first
+        df_clean = df.replace([np.inf, -np.inf], np.nan)
+        
+        # Describe stats
+        stats_df = df_clean.describe(include='all').T
+        basic_stats = stats_df.where(pd.notnull(stats_df), None).to_dict()
+
+        # Sample data
+        sample_df = df_clean.head(10).where(pd.notnull(df_clean.head(10)), None)
 
         summary = {
             "columns": list(df.columns),
@@ -52,7 +60,9 @@ class DataProcessor:
             "sample_data": sample_df.to_dict(orient="records"),
             "basic_stats": basic_stats
         }
-        return summary
+        
+        # Final safety cleanup for any hidden nested NaNs/Infs
+        return DataProcessor.sanitize_output(summary)
 
     @staticmethod
     def detect_numeric_cols(df: pd.DataFrame) -> List[str]:

@@ -1,15 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MoveRight, Table2, BarChart3, MessageSquareText } from "lucide-react";
+import { MoveRight, Table2, BarChart3, MessageSquareText, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export function Hero() {
   return (
     <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
       {/* Background decoration */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.05),transparent_50%)]" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/30 blur-[100px] -z-10 rounded-full" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_50%)]" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/40 blur-[120px] -z-10 rounded-full" />
+      <div className="absolute -bottom-24 -left-24 w-[500px] h-[500px] bg-indigo-100/20 blur-[100px] -z-10 rounded-full" />
       
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -35,12 +36,13 @@ export function Hero() {
               Upload CSV or Excel files and get instant AI-powered insights, automated charts, and natural language Q&A. No SQL or spreadsheets needed.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <Link href="/dashboard" className="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-900 text-white text-lg font-bold hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/20">
-                Analyze My Data <MoveRight className="w-5 h-5" />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-16">
+              <Link href="/signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-blue-600 text-white text-lg font-black hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-2xl shadow-blue-500/30 border border-blue-400">
+                Start for Free <MoveRight className="w-5 h-5" />
               </Link>
-              <Link href="#how-it-works" className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-700 text-lg font-bold border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
-                Learn More
+              <Link href="/dashboard" className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-700 text-lg font-bold border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-100/50 group">
+                Try Live Demo
+                <Sparkles className="w-5 h-5 text-amber-500 group-hover:rotate-12 transition-transform" />
               </Link>
             </div>
           </motion.div>
