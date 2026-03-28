@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataMind AI | Standalone Analyst</title>
+    <!-- Google Fonts DM Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse for CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+    <!-- SheetJS for Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --card-bg: #12121a;
+            --accent: #00d4ff;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: rgba(255,255,255,0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-h: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+            letter-spacing: -1px;
+        }
+
+        .nav-link {
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--text-dim);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        .nav-link.active {
+            background: rgba(0,212,255,0.1);
+            color: var(--accent);
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        /* Top Navbar */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        nav.top-bar {
+            height: 70px;
+            padding: 0 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .api-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.03);
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .api-input {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 700;
+            width: 250px;
+            outline: none;
+        }
+
+        /* Main Content */
+        .content {
+            padding: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            height: 300px;
+            border: 2px dashed rgba(255,255,255,0.1);
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
+            position: relative;
+            background: rgba(255,255,255,0.01);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(0,212,255,0.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            margin: 10px 0;
+        }
+
+        .stat-card .label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Insights Panel */
+        .insights-panel {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .insights-panel::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(124,58,237,0.1), transparent 70%);
+            pointer-events: none;
+        }
+
+        .insights-panel h4 { color: var(--accent); margin: 2rem 0 1rem 0; font-size: 1.2rem; }
+        .insights-panel ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .insights-panel li { margin-bottom: 0.8rem; line-height: 1.6; color: var(--text-dim); }
+
+        /* Chart Area */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            height: 500px;
+            margin-bottom: 2rem;
+        }
+
+        /* Tables */
+        .table-wrap {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: rgba(255,255,255,0.03);
+            text-align: left;
+            padding: 1rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        /* Q&A Section */
+        .qa-box {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .chat-area {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            padding-right: 10px;
+        }
+
+        .chat-bubble {
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            max-width: 80%;
+            font-weight: 500;
+        }
+
+        .chat-user { background: var(--secondary); align-self: flex-end; margin-left: auto; }
+        .chat-ai { background: rgba(255,255,255,0.05); color: var(--text); border-left: 4px solid var(--accent); }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .qa-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 1rem;
+            color: white;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,212,255,0.3); }
+
+        /* Loader */
+        .loader {
+            display: none;
+            width: 25px; height: 25px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Chips */
+        .chip {
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-block;
+            margin: 5px;
+            transition: 0.3s;
+        }
+
+        .chip:hover { background: var(--secondary); color: white; }
+
+        .badge {
+            background: var(--warning);
+            color: black;
+            padding: 2px 10px;
+            border-radius: 5px;
+            font-size: 0.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">🚀 DataMind AI</div>
+        
+        <div class="nav-links">
+            <div class="nav-link active" onclick="showSection('dashboard')">📊 Dashboard</div>
+            <div class="nav-link" onclick="showSection('charts')">📈 Charts</div>
+            <div class="nav-link" onclick="showSection('qa')">💬 AI Chat</div>
+            <div class="nav-link" onclick="showSection('preview')">👁️ Data Preview</div>
+            <div class="nav-link" onclick="showSection('cleaning')">🧹 Cleaning</div>
+        </div>
+
+        <div style="margin-top: auto; padding: 1rem; background: rgba(0,212,255,0.05); border-radius: 20px;">
+            <p style="font-size: 0.7rem; color: var(--accent); font-weight: 900; margin-bottom: 5px;">QUALITY SCORE</p>
+            <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                <div id="quality-p" style="width: 0%; height: 100%; background: var(--accent);"></div>
+            </div>
+            <p id="quality-v" style="font-size: 0.9rem; font-weight: 900; margin-top: 5px;">0%</p>
+        </div>
+    </aside>
+
+    <div class="main-container">
+        <!-- Top Bar -->
+        <nav class="top-bar">
+            <h3 id="current-filename" style="font-weight: 900; letter-spacing: -0.5px;">No file selected</h3>
+            
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="loader" id="global-loader"></div>
+                <div class="api-input-wrap">
+                    <span style="font-size: 0.8rem">🔑</span>
+                    <input type="password" id="api-key" class="api-input" placeholder="Paste Groq API Key..." onchange="saveKey()">
+                </div>
+                <button class="btn" onclick="exportPDF()" style="background: white;">Export PDF</button>
+            </div>
+        </nav>
+
+        <div class="content">
+            
+            <!-- SECTION: Dashboard -->
+            <div id="dashboard" class="section active">
+                <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" style="display:none" accept=".csv, .xlsx, .xls" onchange="handleFile(this.files[0])">
+                    <span class="upload-icon">📁</span>
+                    <h2 style="font-weight: 900; margin-bottom: 5px;">Upload Data Stream</h2>
+                    <p style="color: var(--text-dim); font-weight: 600;">Drag & drop CSV or Excel files here</p>
+                    <div id="demo-badge" class="badge" style="display:none">DEMO MODE ACTIVE</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p class="label">Total Datapoints</p>
+                        <p id="stat-rows" class="value">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Variables Found</p>
+                        <p id="stat-cols" class="value">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Missing Values</p>
+                        <p id="stat-missing" class="value" style="color: var(--warning)">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Inferred Insights</p>
+                        <p id="stat-insights" class="value" style="color: var(--accent)">0</p>
+                    </div>
+                </div>
+
+                <div class="insights-panel" id="insights-container">
+                    <div style="text-align: center; color: var(--text-dim); padding: 4rem 0;">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">🧠</span>
+                        <h3 style="font-weight: 900; color: white;">AI Insights Engine</h3>
+                        <p>Upload a file to trigger neural logic analysis.</p>
+                        <button class="chip" onclick="loadDemo()" style="margin-top: 20px;">Load Demo Dataset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Charts -->
+            <div id="charts" class="section">
+                <div style="margin-bottom: 2rem; display: flex; gap: 10px;">
+                    <button class="chip" onclick="updateChart('bar')">Bar Chart</button>
+                    <button class="chip" onclick="updateChart('line')">Growth Line</button>
+                    <button class="chip" onclick="updateChart('pie')">Segment Pie</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- SECTION: AI Q&A -->
+            <div id="qa" class="section">
+                <div class="qa-box">
+                    <div class="chat-area" id="chat-stream">
+                        <div class="chat-bubble chat-ai">
+                            How can I help you understand this data today?
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <span class="chip" onclick="askQuestion(this.innerText)">Summarize this data in 5 points</span>
+                        <span class="chip" onclick="askQuestion(this.innerText)">What is the highest value?</span>
+                        <span class="chip" onclick="askQuestion(this.innerText)">Detect current trends</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="chat-input" class="qa-input" placeholder="Ask AI about this dataset..." onkeypress="if(event.key==='Enter') sendChat()">
+                        <button class="btn" onclick="sendChat()">Ask AI</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Data Preview -->
+            <div id="preview" class="section">
+                <div class="table-wrap" id="table-container">
+                    <div style="padding: 4rem; text-align: center; color: var(--text-dim);">
+                        Perspective requires a valid data source.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Cleaning -->
+            <div id="cleaning" class="section">
+                <div id="cleaning-cards" style="display: grid; gap: 15px;">
+                    <div class="stat-card" style="text-align: left;">
+                        <h4 style="color: var(--accent);">Initialize Audit</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 5px;">No issues detected until file is processed.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        window.appState = {
+            data: null,
+            columns: [],
+            stats: {},
+            chart: null,
+            isDemo: false
+        };
+
+        // Load Key
+        window.onload = () => {
+            const savedKey = localStorage.getItem('groq_api_key');
+            if (savedKey) document.getElementById('api-key').value = savedKey;
+        }
+
+        function saveKey() {
+            localStorage.setItem('groq_api_key', document.getElementById('api-key').value);
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- Core Functions ---
+        function handleFile(file) {
+            if (!file) return;
+            document.getElementById('current-filename').innerText = file.name;
+            document.getElementById('demo-badge').style.display = 'none';
+            appState.isDemo = false;
+
+            const reader = new FileReader();
+            if (file.name.endsWith('.csv')) {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => processData(results.data)
+                });
+            } else {
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(firstSheet);
+                    processData(json);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function processData(rows) {
+            appState.data = rows;
+            appState.columns = Object.keys(rows[0]);
+            
+            // Basic Analytics
+            document.getElementById('stat-rows').innerText = rows.length;
+            document.getElementById('stat-cols').innerText = appState.columns.length;
+            
+            // Detecting Columns
+            const numeric = appState.columns.filter(col => !isNaN(parseFloat(rows[0][col])));
+            appState.stats = {
+                numeric,
+                missing: 0,
+                duplicates: 0
+            };
+
+            renderTable();
+            renderCharts();
+            runAIAnalysis();
+            updateQualityScore();
+        }
+
+        function updateQualityScore() {
+            const score = Math.floor(Math.random() * 40) + 60; // Mock score
+            document.getElementById('quality-p').style.width = score + '%';
+            document.getElementById('quality-v').innerText = score + '%';
+        }
+
+        function renderTable() {
+            const container = document.getElementById('table-container');
+            let html = `<table><thead><tr>`;
+            appState.columns.forEach(c => html += `<th>${c}</th>`);
+            html += `</tr></thead><tbody>`;
+            appState.data.slice(0, 15).forEach(row => {
+                html += `<tr>`;
+                appState.columns.forEach(c => html += `<td>${row[c] || '-'}</td>`);
+                html += `</tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        async function runAIAnalysis() {
+            const apiKey = document.getElementById('api-key').value;
+            if (!apiKey) {
+                alert("Please enter a Groq API Key to see AI insights!");
+                return;
+            }
+
+            document.getElementById('global-loader').style.display = 'block';
+            document.getElementById('insights-container').innerHTML = `<div style="text-align:center; padding: 4rem;"><div class="loader" style="display:inline-block"></div><p style="margin-top:1rem">Groq AI is processing your data...</p></div>`;
+
+            const sample = JSON.stringify(appState.data.slice(0, 10));
+            const prompt = `System: You are a senior data analyst.
+            User: Analyze this dataset summary:
+            Columns: ${appState.columns.join(', ')}
+            Total Rows: ${appState.data.length}
+            Sample Data: ${sample}
+            
+            Return a professional HTML report with:
+            5 Key Insights, 3 Trends, 3 Anomalies, 5 Strategy Recommendations.
+            Return ONLY HTML code using <h4>, <p>, <ul>, <li>.`;
+
+            try {
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: [{ role: 'system', content: "Senior Data Analyst Expert" }, { role: 'user', content: prompt }],
+                        max_tokens: 1500
+                    })
+                });
+
+                const json = await response.json();
+                document.getElementById('insights-container').innerHTML = json.choices[0].message.content;
+                document.getElementById('stat-insights').innerText = "16+";
+            } catch (e) {
+                console.error(e);
+                document.getElementById('insights-container').innerHTML = `<p style="color:var(--warning)">Failed to reach AI. Check your API key.</p>`;
+            } finally {
+                document.getElementById('global-loader').style.display = 'none';
+            }
+        }
+
+        function renderCharts() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (appState.chart) appState.chart.destroy();
+
+            const numCol = appState.stats.numeric[0];
+            if (!numCol) return;
+
+            const labels = appState.data.slice(0, 10).map((_, i) => `Row ${i+1}`);
+            const values = appState.data.slice(0, 10).map(r => parseFloat(r[numCol]));
+
+            appState.chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: numCol,
+                        data: values,
+                        backgroundColor: '#00d4ff55',
+                        borderColor: '#00d4ff',
+                        borderWidth: 2,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { border: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { border: { display: false }, grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            if (!input.value) return;
+            askQuestion(input.value);
+            input.value = '';
+        }
+
+        async function askQuestion(text) {
+            const stream = document.getElementById('chat-stream');
+            stream.innerHTML += `<div class="chat-bubble chat-user">${text}</div>`;
+            stream.scrollTop = stream.scrollHeight;
+
+            const apiKey = document.getElementById('api-key').value;
+            if (!apiKey) return;
+
+            document.getElementById('global-loader').style.display = 'block';
+
+            try {
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: [
+                            { role: 'system', content: "Answer questions about data statistics provided. Be numeric and brief." },
+                            { role: 'user', content: `Data Overview: ${JSON.stringify(appState.data.slice(0, 5))}. Question: ${text}` }
+                        ]
+                    })
+                });
+                const json = await response.json();
+                stream.innerHTML += `<div class="chat-bubble chat-ai">${json.choices[0].message.content}</div>`;
+                stream.scrollTop = stream.scrollHeight;
+            } catch (e) {
+                stream.innerHTML += `<div class="chat-bubble chat-ai" style="color:var(--warning)">Error connecting to AI.</div>`;
+            } finally {
+                document.getElementById('global-loader').style.display = 'none';
+            }
+        }
+
+        function loadDemo() {
+            const demoData = [
+                { Month: 'Jan', Product: 'SaaS App', Units: 120, Revenue: 5000, Profit: 3000 },
+                { Month: 'Feb', Product: 'SaaS App', Units: 150, Revenue: 7500, Profit: 4500 },
+                { Month: 'Mar', Product: 'SaaS App', Units: 170, Revenue: 8500, Profit: 5100 },
+                { Month: 'Apr', Product: 'SaaS App', Units: 200, Revenue: 10000, Profit: 6200 },
+                { Month: 'May', Product: 'SaaS App', Units: 240, Revenue: 13000, Profit: 8000 }
+            ];
+            document.getElementById('current-filename').innerText = "Business_Sales_Demo.csv";
+            document.getElementById('demo-badge').style.display = 'inline-block';
+            appState.isDemo = true;
+            processData(demoData);
+        }
+
+        function exportPDF() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

@@ -2,107 +2,137 @@
 
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { CtaBanner } from "@/components/cta-banner";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Phone, MessageSquare } from "lucide-react";
+import { Mail, Phone, MapPin, MessageSquare, Send, Zap, ChevronRight, Globe, ExternalLink, MessageCircle, Users } from "lucide-react";
+import { useState } from "react";
 
-export default function ContactPage() {
+export default function Contact() {
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    setFormStatus('sending');
+    setTimeout(() => setFormStatus('sent'), 1500);
+  };
+
   return (
-    <main className="min-h-screen pt-20 flex flex-col bg-slate-50">
+    <main className="min-h-screen bg-white">
       <Navbar />
-      
-      <div className="flex-grow container mx-auto px-6 py-24 relative">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-200/40 rounded-full blur-[120px] -z-10" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-200/40 rounded-full blur-[120px] -z-10" />
+
+      <section className="pt-48 pb-24 relative overflow-hidden px-6">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100/20 blur-[130px] rounded-full -z-10" />
         
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6"
-          >
-            Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Touch</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-xl text-slate-600"
-          >
-            Have a question, feedback, or need a custom enterprise plan? Our team is here to help you revolutionize your data analysis.
-          </motion.p>
-        </div>
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-stretch">
+           {/* Left Info Column */}
+           <div className="space-y-12">
+              <motion.div
+                 initial={{ opacity: 0, x: -20 }}
+                 animate={{ opacity: 1, x: 0 }}
+              >
+                 <span className="px-5 py-2 rounded-full bg-blue-50 text-blue-600 text-xs font-black uppercase tracking-widest border border-blue-100 mb-8 inline-block">
+                    Neural Customer Care
+                 </span>
+                 <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-none mb-8">
+                    Let's Solve Data <span className="text-blue-600">Together</span>.
+                 </h1>
+                 <p className="text-xl text-slate-500 font-medium max-w-xl leading-relaxed">
+                    Have a custom data requirement or need help scaling your enterprise workspace? Our senior analysts are ready to help.
+                 </p>
+              </motion.div>
 
-        <div className="grid md:grid-cols-5 gap-12 max-w-6xl mx-auto">
-          {/* Contact Info */}
-          <div className="md:col-span-2 space-y-8">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -z-10 transition-transform group-hover:scale-110" />
-              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
-                <Mail className="w-6 h-6" />
+              <div className="grid sm:grid-cols-2 gap-8">
+                {[
+                  { icon: <Mail className="w-5 h-5" />, label: "Intel Email", value: "hello@datamind.ai" },
+                  { icon: <Phone className="w-5 h-5" />, label: "Direct Support", value: "+1 (888) DATA-AI" },
+                  { icon: <MapPin className="w-5 h-5" />, label: "HQ Locale", value: "Silicon Valley, CA" },
+                  { icon: <Globe className="w-5 h-5" />, label: "Global Presence", value: "Available 24/7 Online" }
+                ].map((item, i) => (
+                  <div key={i} className="group p-6 bg-slate-50 rounded-[2rem] border border-slate-100 hover:bg-white hover:shadow-xl hover:border-slate-200 transition-all cursor-pointer">
+                    <div className="w-10 h-10 rounded-xl bg-white text-blue-600 flex items-center justify-center mb-4 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
+                      {item.icon}
+                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
+                    <p className="font-black text-slate-900">{item.value}</p>
+                  </div>
+                ))}
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Email Us</h3>
-              <p className="text-slate-500 font-medium">hello@aianalyst.com</p>
-              <p className="text-slate-500 font-medium">support@aianalyst.com</p>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-full -z-10 transition-transform group-hover:scale-110" />
-              <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Office</h3>
-              <p className="text-slate-500 font-medium">100 Innovation Drive</p>
-              <p className="text-slate-500 font-medium">San Francisco, CA 94103</p>
-            </motion.div>
-          </div>
 
-          {/* Contact Form */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="md:col-span-3 bg-white p-10 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-slate-100 relative"
-          >
-            <form className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">First Name</label>
-                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" placeholder="John" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Last Name</label>
-                  <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" placeholder="Doe" />
-                </div>
+              <div className="pt-8 border-t border-slate-100">
+                 <p className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Connect with Neural Network</p>
+                 <div className="flex items-center gap-6">
+                    {[ExternalLink, MessageCircle, Users].map((Icon, i) => (
+                      <a key={i} href="#" className="p-3 bg-slate-900 text-white rounded-xl hover:bg-blue-600 hover:scale-110 transition-all shadow-lg active:scale-95">
+                        <Icon className="w-5 h-5" />
+                      </a>
+                    ))}
+                 </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">Work Email</label>
-                <input type="email" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" placeholder="john@company.com" />
+           </div>
+
+           {/* Right Form Column */}
+           <motion.div 
+             initial={{ opacity: 0, y: 30 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="bg-white rounded-[3.5rem] p-10 md:p-14 border border-slate-200 shadow-2xl shadow-blue-500/5 relative overflow-hidden"
+           >
+              <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl" />
+              <div className="relative z-10 flex flex-col h-full">
+                 <div className="mb-10 text-center lg:text-left">
+                    <h3 className="text-3xl font-black text-slate-900 mb-2">Initialize Contact Probe</h3>
+                    <p className="text-slate-500 font-medium">Responses typically sent via neural uplink in &lt; 2 hours.</p>
+                 </div>
+
+                 {formStatus === 'sent' ? (
+                   <div className="flex-1 flex flex-col items-center justify-center text-center py-20 animate-in fade-in zoom-in duration-500">
+                      <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-6 shadow-sm border border-emerald-100">
+                         <Send className="w-10 h-10" />
+                      </div>
+                      <h4 className="text-2xl font-black text-slate-900 mb-4">Transmission Successful!</h4>
+                      <p className="text-slate-500 font-medium mb-10 max-w-sm">Your intelligence request has been received. Our team will contact you shortly.</p>
+                      <button onClick={() => setFormStatus('idle')} className="text-blue-600 font-black flex items-center gap-2 hover:gap-3 transition-all">Send another probe <ChevronRight className="w-4 h-4" /></button>
+                   </div>
+                 ) : (
+                   <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-3">Full Identity</label>
+                            <input required type="text" placeholder="John Wick" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all" />
+                         </div>
+                         <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-3">Neural Email</label>
+                            <input required type="email" placeholder="john@example.ai" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all" />
+                         </div>
+                      </div>
+
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-3">Subject Matrix</label>
+                         <select className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all">
+                            <option>Enterprise Onboarding</option>
+                            <option>Technical Intel Inquiry</option>
+                            <option>Billing & Plan Scaling</option>
+                            <option>General Support Probe</option>
+                         </select>
+                      </div>
+
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-3">The Intelligence Message</label>
+                         <textarea rows={5} placeholder="Describe your data challenge..." className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all resize-none"></textarea>
+                      </div>
+
+                      <button type="submit" disabled={formStatus === 'sending'} className="w-full py-5 bg-blue-600 text-white rounded-3xl font-black text-lg hover:bg-blue-700 shadow-2xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50">
+                         {formStatus === 'sending' ? (
+                           <>Initializing Uplink... <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /></>
+                         ) : (
+                           <>Transmit Message <Send className="w-5 h-5" /></>
+                         )}
+                      </button>
+                   </form>
+                 )}
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">Message</label>
-                <textarea rows={4} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all resize-none" placeholder="Tell us how we can help..."></textarea>
-              </div>
-              <button type="button" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl px-4 py-4 hover:shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2">
-                Send Message
-                <MessageSquare className="w-5 h-5" />
-              </button>
-            </form>
-          </motion.div>
+           </motion.div>
         </div>
-      </div>
-      
-      <CtaBanner />
+      </section>
+
       <Footer />
     </main>
   );

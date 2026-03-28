@@ -13,6 +13,8 @@ from pydantic import BaseModel
 # --- Auth System ---
 from auth_routes import router as auth_router, get_current_user
 from database import User
+# --- Paddle Payments ---
+from paddle_webhook import router as paddle_router
 # -------------------
 
 load_dotenv()
@@ -21,6 +23,9 @@ app = FastAPI(title="AI Data Analyst API")
 
 # Include Authentication Router
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+
+# Include Paddle Webhook Router
+app.include_router(paddle_router, prefix="/api/payments", tags=["Payments"])
 
 # Setup CORS for Frontend access
 app.add_middleware(

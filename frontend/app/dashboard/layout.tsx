@@ -27,6 +27,8 @@ import { AdvancedLoader } from "@/components/advanced-loader";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [userData, setUserData] = useState<any>(null);
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [activeBusiness, setActiveBusiness] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -44,6 +46,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         if (res.ok) {
           const data = await res.json();
           setUserData(data);
+          setBusinesses(data.businesses || [{ id: 1, name: "Default Corp" }, { id: 2, name: "Retail Pro" }]); // Mock list
+          setActiveBusiness(data.active_business || { id: 1, name: "Default Corp" });
         } else {
           localStorage.removeItem("token");
           window.location.href = "/login";
@@ -75,7 +79,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { label: "Inbox", icon: Bell, href: "/dashboard/notifications", count: userData?.unread_notifications },
     { label: "Billing", icon: CreditCard, href: "/dashboard/billing" },
     { label: "Settings", icon: Settings, href: "/dashboard/settings" },
-    { label: "Admin", icon: Users, href: "/admin", adminOnly: true }
   ];
 
   const initials = userData?.full_name ? userData.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "AA";
@@ -110,7 +113,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
         </div>
 
-        {/* Sidebar Navigation */}
+        {/* Business Switcher */}
+        {!isSidebarCollapsed && (
+          <div className="px-6 mb-8 mt-6 relative z-10">
+            <div className="flex flex-col gap-2">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Active Intelligence Hub</p>
+              <div className="group/hub">
+                 <button className="w-full flex items-center justify-between gap-3 p-3 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all text-left">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                       <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-xs shrink-0">{activeBusiness?.name[0] || "D"}</div>
+                       <span className="text-sm font-bold truncate">{activeBusiness?.name || "Main Workforce"}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover/hub:translate-x-1 transition-transform" />
+                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="p-4 flex-1 overflow-y-auto space-y-8 relative z-10 custom-scrollbar">
           {/* Main Menu */}
           <div>

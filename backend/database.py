@@ -29,6 +29,7 @@ class User(Base):
     notifications = relationship("Notification", back_populates="user")
     subscription = relationship("PlanSubscription", back_populates="user", uselist=False)
     logs = relationship("ActivityLog", back_populates="user")
+    businesses = relationship("Business", back_populates="owner")
 
 
 class UserProfile(Base):
@@ -61,12 +62,28 @@ class UserUpload(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
+    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=True)
     filename = Column(String)
     file_url = Column(String, nullable=True) # S3 or Supabase Storage URL
     analysis_results = Column(JSON, nullable=True) # Summary of the processed dataframe
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="uploads")
+    business = relationship("Business", back_populates="uploads")
+
+
+class Business(Base):
+    __tablename__ = "businesses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    name = Column(String, index=True)
+    industry = Column(String, nullable=True)
+    logo_url = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    owner = relationship("User", back_populates="businesses")
+    uploads = relationship("UserUpload", back_populates="business")
 
 
 class Notification(Base):
