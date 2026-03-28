@@ -9,3 +9,8 @@ pydantic
 python-multipart
 sqlalchemy
 psycopg2-binary
+PyJWT
+bcrypt
+passlib
+email-validator
+gunicorn
