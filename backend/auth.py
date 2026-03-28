@@ -43,6 +43,17 @@ class ProfileUpdate(BaseModel):
     profile_pic_url: Optional[str] = None
     preferences: Optional[dict] = None
 
+class OnboardingData(BaseModel):
+    user_type: Optional[str] = None
+    use_case: Optional[str] = None
+    experience_level: Optional[str] = None
+    company_name: Optional[str] = None
+    monthly_data_size: Optional[str] = None
+    preferred_currency: Optional[str] = None
+    main_goal: Optional[str] = None
+    theme: Optional[str] = None
+    notifications_enabled: Optional[bool] = None
+
 class DashboardData(BaseModel):
     user_id: int
     full_name: str
@@ -51,12 +62,17 @@ class DashboardData(BaseModel):
     profile_pic: Optional[str] = None
     preferences: Optional[dict] = None
     recent_uploads: list = []
+    total_datasets: int = 0
+    queries_run: int = 0
+    insights_generated: int = 0
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+import bcrypt
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+def verify_password(plain_password: str, hashed_password: str):
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def get_password_hash(password: str):
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()

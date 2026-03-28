@@ -21,11 +21,29 @@ export default function LoginPage() {
     if (!isFormValid) return;
     
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.access_token);
+        window.location.href = "/dashboard";
+      } else {
+        const errorData = await response.json();
+        alert(errorData.detail || "Invalid credentials");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      alert("Network error connecting to Backend API.");
       setIsLoading(false);
-      window.location.href = "/dashboard";
-    }, 1500);
+    }
   };
 
   return (

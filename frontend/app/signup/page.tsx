@@ -34,11 +34,43 @@ export default function SignupPage() {
     if (!isFormValid) return;
     
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+      
+      if (response.ok) {
+        // Automatically login the user after register
+        const loginRes = await fetch("http://localhost:8000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          })
+        });
+        
+        if (loginRes.ok) {
+          const data = await loginRes.json();
+          localStorage.setItem("token", data.access_token);
+          window.location.href = "/onboarding";
+        }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.detail || "Registration failed");
+        setIsLoading(false);
+      }
+    } catch (error) {
+      alert("Network error. Please make sure backend is running.");
       setIsLoading(false);
-      window.location.href = "/dashboard";
-    }, 1500);
+    }
   };
 
   return (

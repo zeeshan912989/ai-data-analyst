@@ -16,8 +16,40 @@ import {
   Home
 } from "lucide-react";
 
+import { useState, useEffect } from "react";
+import { AdvancedLoader } from "@/components/advanced-loader";
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [userData, setUserData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/login";
+        return;
+      }
+      try {
+        const res = await fetch("http://localhost:8000/api/auth/dashboard", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData(data);
+        } else {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        }
+      } catch (err) {
+        console.error("Backend offline");
+      } finally {
+        setTimeout(() => setIsLoading(false), 2000);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const menuItems = [
     { label: "Overview", icon: Home, href: "/dashboard" },
@@ -34,6 +66,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { label: "Settings", icon: Settings, href: "/dashboard/settings" },
     { label: "Admin Panel", icon: Users, href: "/admin", adminOnly: true }
   ];
+
+  const initials = userData?.full_name ? userData.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : "AA";
+
+  if (isLoading) {
+    return <AdvancedLoader fullScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex text-slate-900 font-sans">
@@ -93,11 +131,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-t border-slate-100">
           <div className="flex items-center gap-3 group cursor-pointer hover:bg-slate-50 p-2 rounded-xl transition-colors">
             <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white">
-              JD
+              {userData ? initials : "..."}
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-bold text-slate-900 truncate">John Doe</p>
-              <p className="text-xs text-slate-500 font-medium truncate">Pro Plan</p>
+              <p className="text-sm font-bold text-slate-900 truncate">{userData ? (userData.full_name || "User") : "Loading..."}</p>
+              <p className="text-xs text-slate-500 font-medium truncate">Free Plan</p>
             </div>
           </div>
         </div>

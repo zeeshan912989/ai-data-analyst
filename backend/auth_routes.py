@@ -6,7 +6,7 @@ import jwt
 
 from database import get_db, User, UserProfile, UserActivity, UserUpload
 from auth import (
-    UserCreate, UserLogin, Token, UserResponse, ProfileUpdate, DashboardData,
+    UserCreate, UserLogin, Token, UserResponse, ProfileUpdate, DashboardData, OnboardingData,
     get_password_hash, verify_password, create_access_token, create_refresh_token,
     SECRET_KEY, ALGORITHM
 )
@@ -100,6 +100,30 @@ def update_profile(profile_data: ProfileUpdate, db: Session = Depends(get_db), c
     log_activity(db, current_user.id, "PROFILE_UPDATED")
     return {"message": "Profile updated successfully"}
 
+@router.post("/onboarding/save")
+def save_onboarding(data: OnboardingData, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+    if not profile:
+        profile = UserProfile(user_id=current_user.id)
+        db.add(profile)
+        
+    if data.company_name:
+        profile.company = data.company_name
+        
+    # Build preferences json
+    prefs = profile.preferences or {}
+    for key, val in data.dict(exclude_unset=True).items():
+        if key not in ['company_name']: 
+            prefs[key] = val
+            
+    # Normalize nested preferences updates
+    profile.preferences = prefs
+    
+    db.commit()
+    log_activity(db, current_user.id, "ONBOARDING_COMPLETED")
+    return {"message": "Onboarding saved successfully"}
+
+
 @router.get("/dashboard", response_model=DashboardData)
 def get_dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """ Initialize Dashboard endpoint parsing all personalized user data """
@@ -113,7 +137,10 @@ def get_dashboard(db: Session = Depends(get_db), current_user: User = Depends(ge
         "company": profile.company if profile else None,
         "profile_pic": profile.profile_pic_url if profile else None,
         "preferences": profile.preferences if profile else None,
-        "recent_uploads": [{"id": u.id, "filename": u.filename, "created_at": u.created_at} for u in uploads]
+        "recent_uploads": [{"id": u.id, "filename": u.filename, "created_at": u.created_at} for u in uploads],
+        "total_datasets": db.query(UserUpload).filter(UserUpload.user_id == current_user.id).count(),
+        "queries_run": db.query(UserActivity).filter(UserActivity.user_id == current_user.id, UserActivity.action.like('%QUERY%')).count(),
+        "insights_generated": db.query(UserActivity).filter(UserActivity.user_id == current_user.id, UserActivity.action.like('%INSIGHT%')).count()
     }
     
     log_activity(db, current_user.id, "DASHBOARD_ACCESSED")
