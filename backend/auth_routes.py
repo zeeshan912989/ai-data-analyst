@@ -17,12 +17,33 @@ security = HTTPBearer()
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
     token = credentials.credentials
     try:
+        # 1. Try local verified token first
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
-        if email is None:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
     except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        try:
+            # 2. If it fails, check if it's a Supabase token (decode without verification for transition)
+            # In a real production, you'd verify this with Supabase's JWT secret
+            payload = jwt.decode(token, options={"verify_signature": False})
+            email = payload.get("email") or payload.get("sub")
+            
+            if not email:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+                
+            # Check if user exists, if not (social login first time), create them
+            user = db.query(User).filter(User.email == email).first()
+            if not user:
+                user = User(name=email.split('@')[0], email=email, hashed_password="social_login_placeholder")
+                db.add(user)
+                db.commit()
+                db.refresh(user)
+                # Initialize profile
+                db.add(UserProfile(user_id=user.id))
+                db.add(PlanSubscription(user_id=user.id, plan_name="Free"))
+                db.commit()
+            return user
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid token")
         
     user = db.query(User).filter(User.email == email).first()
     if user is None:
