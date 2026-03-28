@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 
 # Secret key for JWTs! Use env var in production
-SECRET_KEY = os.getenv("JWT_SECRET", "super-secret-key-for-ai-analyst-2026")
+SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key-for-ai-analyst-2026")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30 # 30 days
