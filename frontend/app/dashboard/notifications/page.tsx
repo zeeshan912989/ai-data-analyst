@@ -7,7 +7,6 @@ import {
   AlertCircle, Upload, Calendar, Search, 
   Filter, MoreHorizontal, Check
 } from "lucide-react";
-import { format } from "date-fns";
 
 interface Notification {
   id: number;
@@ -119,7 +118,7 @@ export default function NotificationsPage() {
                         {notif.title}
                       </h3>
                       <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
-                        {format(new Date(notif.created_at), "MMM d, h:mm a")}
+                        {new Date(notif.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                     <p className="text-slate-500 text-sm leading-relaxed max-w-2xl">
