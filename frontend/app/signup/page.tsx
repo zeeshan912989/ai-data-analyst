@@ -61,7 +61,7 @@ export default function SignupPage() {
         if (loginRes.ok) {
           const data = await loginRes.json();
           localStorage.setItem("token", data.access_token);
-          window.location.href = "/onboarding";
+          window.location.href = `${window.location.origin}/onboarding`;
         }
       } else {
         const errorData = await response.json();

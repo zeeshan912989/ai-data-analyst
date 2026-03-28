@@ -35,7 +35,7 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.access_token);
-        window.location.href = "/dashboard";
+        window.location.href = `${window.location.origin}/dashboard`;
       } else {
         const errorData = await response.json();
         alert(errorData.detail || "Invalid credentials");
