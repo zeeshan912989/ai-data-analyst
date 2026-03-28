@@ -37,7 +37,7 @@ export default function SignupPage() {
     setIsLoading(true);
     
     try {
-      const response = await fetch("http://localhost:8000/api/auth/register", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -49,7 +49,7 @@ export default function SignupPage() {
       
       if (response.ok) {
         // Automatically login the user after register
-        const loginRes = await fetch("http://localhost:8000/api/auth/login", {
+        const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

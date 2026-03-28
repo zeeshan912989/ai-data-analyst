@@ -44,7 +44,7 @@ export default function AnalysisPage() {
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/analyze", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

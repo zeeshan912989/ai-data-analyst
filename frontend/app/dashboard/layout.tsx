@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return;
       }
       try {
-        const res = await fetch("http://localhost:8000/api/auth/dashboard", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/dashboard`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

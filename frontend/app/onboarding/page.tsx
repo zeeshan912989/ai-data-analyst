@@ -77,7 +77,7 @@ export default function Onboarding() {
         return;
       }
       try {
-        const res = await fetch("http://localhost:8000/api/auth/me", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -113,7 +113,7 @@ export default function Onboarding() {
     setIsSubmitting(true);
     const token = localStorage.getItem("token");
     try {
-      await fetch("http://localhost:8000/api/auth/onboarding/save", {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/onboarding/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
