@@ -129,15 +129,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         
         {/* User Badge */}
         <div className="p-4 border-t border-slate-100">
-          <div className="flex items-center gap-3 group cursor-pointer hover:bg-slate-50 p-2 rounded-xl transition-colors">
+          <Link href="/dashboard/settings" className="flex items-center gap-3 group cursor-pointer hover:bg-slate-50 p-2 rounded-xl transition-colors">
             <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white">
               {userData ? initials : "..."}
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-bold text-slate-900 truncate">{userData ? (userData.full_name || "User") : "Loading..."}</p>
-              <p className="text-xs text-slate-500 font-medium truncate">Free Plan</p>
+              <p className="text-xs text-slate-500 font-medium truncate">{userData?.current_plan || "Free"} Plan</p>
             </div>
-          </div>
+          </Link>
         </div>
       </aside>
 
@@ -151,15 +151,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <input 
                 type="text" 
                 placeholder="Search queries, reports, or datasets (Ctrl+K)" 
-                className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-full text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all text-slate-900 font-medium"
+                className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-full text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all text-slate-900 font-medium" 
               />
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors hover:bg-slate-100 rounded-full">
+            <Link href="/dashboard/notifications" className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors hover:bg-slate-100 rounded-full">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
-            </button>
+              {userData?.unread_notifications > 0 && (
+                <span className="absolute top-1 right-1 px-1.5 py-0.5 bg-red-600 text-white text-[10px] font-bold rounded-full border border-white min-w-[18px] h-[18px] flex items-center justify-center">
+                  {userData.unread_notifications}
+                </span>
+              )}
+            </Link>
           </div>
         </header>
 

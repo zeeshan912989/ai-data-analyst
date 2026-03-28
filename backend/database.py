@@ -26,6 +26,9 @@ class User(Base):
     profile = relationship("UserProfile", back_populates="user", uselist=False)
     activities = relationship("UserActivity", back_populates="user")
     uploads = relationship("UserUpload", back_populates="user")
+    notifications = relationship("Notification", back_populates="user")
+    subscription = relationship("PlanSubscription", back_populates="user", uselist=False)
+    logs = relationship("ActivityLog", back_populates="user")
 
 
 class UserProfile(Base):
@@ -64,6 +67,48 @@ class UserUpload(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="uploads")
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    title = Column(String)
+    message = Column(Text)
+    type = Column(String) # e.g., "AI_ALERT", "SYSTEM", "PLAN"
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="notifications")
+
+
+class PlanSubscription(Base):
+    __tablename__ = "subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    plan_name = Column(String, default="Free") # Free, Starter, Pro
+    status = Column(String, default="active")
+    billing_cycle = Column(String, default="monthly")
+    current_period_start = Column(DateTime, default=datetime.utcnow)
+    current_period_end = Column(DateTime, nullable=True)
+    uploads_count = Column(Integer, default=0) # Tracks monthly usage
+    
+    user = relationship("User", back_populates="subscription")
+
+
+class ActivityLog(Base):
+    __tablename__ = "activity_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    action = Column(String)
+    details = Column(String, nullable=True)
+    ip_address = Column(String, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="logs")
 
 
 Base.metadata.create_all(bind=engine)

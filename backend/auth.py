@@ -65,6 +65,8 @@ class DashboardData(BaseModel):
     total_datasets: int = 0
     queries_run: int = 0
     insights_generated: int = 0
+    unread_notifications: int = 0
+    current_plan: str = "Free"
 
 import bcrypt
 
