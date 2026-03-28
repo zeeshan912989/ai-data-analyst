@@ -79,13 +79,23 @@ export function FeatureBanner() {
                   </div>
                 </div>
                 <div className="pt-4">
-                  <Link 
-                    href="/signup" 
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 group-hover:px-10"
-                  >
-                    Get Started Now
-                    <ArrowRight className="w-4 h-4 translate-x-0 group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                  {typeof window !== 'undefined' && localStorage.getItem("token") ? (
+                    <Link 
+                      href="/dashboard" 
+                      className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 group-hover:px-10"
+                    >
+                      View AI Dashboard
+                      <ArrowRight className="w-4 h-4 translate-x-0 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  ) : (
+                    <Link 
+                      href="/signup" 
+                      className="inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 group-hover:px-10"
+                    >
+                      Get Started Now
+                      <ArrowRight className="w-4 h-4 translate-x-0 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  )}
                 </div>
               </div>
 
